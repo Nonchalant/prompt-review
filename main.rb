@@ -49,7 +49,15 @@ pull_requests = repositories
 reviews = Hash.new
 pull_requests.each { |pr|
     pr.requested_reviewers.each { |reviewer|
-        reviews[reviewer.login] = reviews[reviewer.login].nil? ? pr.html_url : reviews[reviewer.login].to_s + '\r' + pr.html_url
+        if reviews[reviewer.login].nil?
+            reviews[reviewer.login] = []
+        end
+
+        reviews[reviewer.login].push({
+            title: pr.title,
+            url: pr.html_url,
+            milestone: pr.milestone
+        })
     }
 }
 
@@ -61,9 +69,13 @@ attachments = reviews
         {   
             pretext: "<@#{ids.select { |item| item["author"] == key }.first["member_id"]}>",
             color: '#7CD197',
-            fields: [{
-                value: value
-            }]
+            fields: value
+                .map { |item|
+                 {
+                        title: item[:milestone].nil? ? item[:title] : "#{item[:title]} :label: #{item[:milestone].title}",
+                        value: item[:url]
+                    }
+                }
         }
     }
 
