@@ -63,7 +63,7 @@ pull_requests.each { |pr|
 
 attachments = reviews
     .select { |key, value| 
-        !ids.select { |item| item["author"] == key }.nil?
+        !ids.select { |item| item["author"] == key }.empty?
     }
     .map { |key, value|
         {   
